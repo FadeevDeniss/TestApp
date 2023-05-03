@@ -1,0 +1,68 @@
+[
+  {
+    "num_pressed": 30,
+    "telephone": "+7 999 754-65-46",
+    "created_date": "2023-05-02", "created_time": "18:40:21"
+  },
+
+  {
+    "num_pressed": 31,
+    "telephone": "+7 946 464-65-44",
+    "created_date": "2023-05-02",
+    "created_time": "18:44:15"
+  },
+
+  {
+    "num_pressed": 32,
+    "telephone": "+7 999 999-99-99",
+    "created_date": "2023-05-02",
+    "created_time": "18:47:40"
+  },
+
+  {
+    "num_pressed": 33,
+    "telephone": "+7 910 970-60-48",
+    "created_date": "2023-05-02",
+    "created_time": "18:54:44"},
+
+  {
+    "num_pressed": 34,
+    "telephone": "+7 985 646-54-44",
+    "created_date": "2023-05-02",
+    "created_time": "19:02:37"},
+
+  {
+    "num_pressed": 35,
+    "telephone": "+7 999 454-64-64",
+    "created_date": "2023-05-02",
+    "created_time": "19:08:04"
+  },
+
+  {
+    "num_pressed": 36,
+    "telephone": "+7 984 156-13-21",
+    "created_date": "2023-05-02",
+    "created_time": "19:12:10"
+  },
+
+  {
+    "num_pressed": 37,
+    "telephone": "+7 984 654-61-54",
+    "created_date": "2023-05-02",
+    "created_time": "19:13:17"
+  },
+
+  {
+    "num_pressed": 38,
+    "telephone": "+7 984 641-13-13",
+    "created_date": "2023-05-02",
+    "created_time": "19:14:09"
+  },
+
+  {
+    "num_pressed": 39,
+    "telephone": "+7 654 646-54-44",
+    "created_date": "2023-05-02",
+    "created_time": "19:14:30"
+  }
+]
