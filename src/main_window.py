@@ -24,7 +24,7 @@ from PyQt6.QtWidgets import (
     QLabel
 )
 
-from dto import RequestDto
+from src.dto import RequestDto
 
 
 class ContactsList(QAbstractListModel):
@@ -47,7 +47,7 @@ class CustomDialogue(QDialog):
         super().__init__(parent)
 
         q_button = QDialogButtonBox.StandardButton.Close
-        font_id = QFontDatabase.addApplicationFont("Commissioner-Medium.ttf")
+        font_id = QFontDatabase.addApplicationFont("../static/Commissioner-Medium.ttf")
         families = QFontDatabase.applicationFontFamilies(font_id)
 
         self.btn_box = QDialogButtonBox(q_button)
@@ -84,7 +84,7 @@ class MainWindow:
         self.line_edit = TextInput()
         self.list_view = QListView()
 
-        font_id = QFontDatabase.addApplicationFont("Commissioner-Medium.ttf")
+        font_id = QFontDatabase.addApplicationFont("../static/Commissioner-Medium.ttf")
         families = QFontDatabase.applicationFontFamilies(font_id)
         main_layout = QGridLayout()
         layout_1 = QHBoxLayout()

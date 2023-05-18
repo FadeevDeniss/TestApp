@@ -4,7 +4,7 @@ import unittest
 from PyQt6.QtCore import QSize
 from PyQt6.QtWidgets import QApplication, QStyleFactory
 
-from main_window import MainWindow, ContactsList
+from src.main_window import MainWindow, ContactsList
 
 
 class MainWindowTestCase(unittest.TestCase):
