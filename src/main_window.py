@@ -188,7 +188,7 @@ class MainWindow:
     def insert(self, item: RequestDto) -> None:
         item = dataclasses.asdict(item).values()
         pretty = '   '.join(
-            [str(i).rjust(15, '-') for i in list(item)])
+            [str(i).rjust(10, ' ') for i in list(item)])
         self.model.contacts.append(pretty)
 
     def btn_send_clicked(self):
@@ -225,3 +225,6 @@ class MainWindow:
     def key_pressed(self, key):
         if self.textline.cursorPosition() == 16 and not self.textline.isModified():
             self.textline.cursorBackward(False, 8)
+        if key == QtCore.Qt.Key.Key_Backspace:
+            self.btn_submit.setEnabled(False)
+
