@@ -1,5 +1,7 @@
 import dataclasses
 import json
+import os
+
 import requests
 
 from PyQt6 import QtCore
@@ -27,6 +29,9 @@ from PyQt6.QtWidgets import (
 )
 
 from src.dto import RequestDto
+from conf.settings import (
+    STATIC, BASE_URL
+)
 
 
 class ContactsList(QAbstractListModel):
@@ -61,8 +66,12 @@ class CustomDialogue(QDialog):
 
         super().__init__(parent)
 
-        q_button = QDialogButtonBox.StandardButton.Close
-        font_id = QFontDatabase.addApplicationFont("../static/Commissioner-Medium.ttf")
+        font_id = QFontDatabase.addApplicationFont(
+            os.path.join(
+                STATIC,
+                "fonts\\barlow\\BarlowCondensed-Medium.ttf"
+            )
+        )
         families = QFontDatabase.applicationFontFamilies(font_id)
 
         self.q_button = QPushButton('close')
@@ -109,25 +118,36 @@ class MainWindow:
     }
 
     def __init__(self):
+
+        main_layout = QGridLayout()
+        horizontal_layout = QHBoxLayout()
+        font_id = QFontDatabase.addApplicationFont(
+            os.path.join(
+                STATIC, "fonts\\barlow\\BarlowCondensed-Medium.ttf"
+            )
+        )
+        view_font_id = QFontDatabase.addApplicationFont(
+            os.path.join(
+                STATIC, "fonts\\play\\Play-Regular.ttf"
+            )
+        )
+        main_family = QFontDatabase.applicationFontFamilies(font_id)
+        view_family = QFontDatabase.applicationFontFamilies(view_font_id)
+
         self.window = QMainWindow()
         self.widget = QWidget()
         self.model = ContactsList([])
 
-        self.btn_submit = QPushButton('Send')
-        self.btn_get = QPushButton('Get contacts')
-        self.line_edit = TextInput()
-        self.list_view = QListView()
-
-        font_id = QFontDatabase.addApplicationFont("../static/Commissioner-Medium.ttf")
-        families = QFontDatabase.applicationFontFamilies(font_id)
-        main_layout = QGridLayout()
-        layout_1 = QHBoxLayout()
-
-        self.btn_get.setFont(QFont(families[0], 80))
-        self.btn_submit.setFont(QFont(families[0], 80))
-        self.list_view.setFont(QFont(families[0], 80))
-
         self.window.setWindowTitle('Simple app')
+
+        self.btn_submit = QPushButton('send')
+        self.btn_get = QPushButton('get contacts')
+        self.textline = TextInput()
+        self.view = QListView()
+
+        for v in (self.btn_submit, self.btn_get):
+            v.setFont(QFont(main_family[0]))
+        self.view.setFont(QFont(view_family[0]))
 
         self.btn_submit.clicked.connect(self.btn_send_clicked)
         self.btn_get.clicked.connect(self.btn_get_clicked)
