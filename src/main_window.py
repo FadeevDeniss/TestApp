@@ -1,9 +1,11 @@
+import dataclasses
 import json
 import requests
 
 from PyQt6 import QtCore
 from PyQt6.QtGui import (
-    QFont, QFontDatabase
+    QFont,
+    QFontDatabase
 )
 from PyQt6.QtCore import (
     QSize,
@@ -18,8 +20,8 @@ from PyQt6.QtWidgets import (
     QLineEdit,
     QWidget,
     QHBoxLayout,
-    QGridLayout, QDialog,
-    QDialogButtonBox,
+    QGridLayout,
+    QDialog,
     QVBoxLayout,
     QLabel
 )
@@ -28,6 +30,10 @@ from src.dto import RequestDto
 
 
 class ContactsList(QAbstractListModel):
+
+    """
+    Custom model, representing row in QListView widget
+    """
 
     def data(self, index, role=None) -> str:
         if role == Qt.ItemDataRole.DisplayRole:
@@ -43,28 +49,46 @@ class ContactsList(QAbstractListModel):
 
 
 class CustomDialogue(QDialog):
+
+    """
+    Class represents dialogue window widget.
+    Window displayed after send button pressed,
+    contains QLabel with textual result and QPushButton
+    for closing, placed vertically
+    """
+
     def __init__(self, parent=None):
+
         super().__init__(parent)
 
         q_button = QDialogButtonBox.StandardButton.Close
         font_id = QFontDatabase.addApplicationFont("../static/Commissioner-Medium.ttf")
         families = QFontDatabase.applicationFontFamilies(font_id)
 
-        self.btn_box = QDialogButtonBox(q_button)
-        self.btn_box.setCenterButtons(True)
-        self.btn_box.clicked.connect(self.close)
+        self.q_button = QPushButton('close')
+        self.q_button.setProperty('class', 'close_btn')
+        self.q_button.clicked.connect(self.close)
 
-        self.layout = QVBoxLayout()
         self.message = QLabel()
         self.message.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         self.message.setFont(QFont(families[0], 80))
+        self.message.setContentsMargins(5, 10, 5, 10)
+        self.message.setWordWrap(True)
+
+        self.layout = QVBoxLayout()
         self.layout.addWidget(self.message)
-        self.layout.addWidget(self.btn_box)
-        self.message.setContentsMargins(10, 10, 10, 10)
+        self.layout.addWidget(self.q_button)
+
+        self.setMinimumWidth(150)
+        self.setMinimumHeight(120)
         self.setLayout(self.layout)
 
 
 class TextInput(QLineEdit):
+
+    """
+    Custom class that inherits QLineEdit widget
+    """
     keyPressed = QtCore.pyqtSignal(int)
 
     def keyPressEvent(self, event):
@@ -73,6 +97,16 @@ class TextInput(QLineEdit):
 
 
 class MainWindow:
+
+    """
+    Container class for managing application main window
+    """
+
+    API_PATH = '/simpleserver/api/contacts'
+    HEADERS = {
+        'Content-Type': 'application/json',
+        'Connection': 'keep-alive'
+    }
 
     def __init__(self):
         self.window = QMainWindow()
@@ -97,77 +131,77 @@ class MainWindow:
 
         self.btn_submit.clicked.connect(self.btn_send_clicked)
         self.btn_get.clicked.connect(self.btn_get_clicked)
-        self.line_edit.textEdited.connect(self.text_edited)
-        self.line_edit.keyPressed.connect(self.key_pressed)
+        self.textline.textEdited.connect(self.text_edited)
+        self.textline.keyPressed.connect(self.key_pressed)
 
-        layout_1.addWidget(self.line_edit)
-        layout_1.addWidget(self.btn_submit)
+        horizontal_layout.addWidget(self.textline)
+        horizontal_layout.addWidget(self.btn_submit)
 
-        main_layout.addLayout(layout_1, 0, 0)
-
+        main_layout.addLayout(horizontal_layout, 0, 0)
         main_layout.addWidget(self.btn_get, 3, 0)
-        main_layout.addWidget(self.list_view, 1, 0)
+        main_layout.addWidget(self.view, 1, 0)
 
         self.widget.setLayout(main_layout)
-        self.window.setBaseSize(QSize(500, 700))
+
         self.window.setMaximumSize(QSize(600, 800))
-        self.window.setGeometry(400, 400, 550, 500)
+        self.window.setGeometry(550, 120, 500, 600)
         self.window.setCentralWidget(self.widget)
 
         self.btn_submit.setEnabled(False)
-        self.widget.setFocus()
 
     def btn_get_clicked(self):
         self.model = ContactsList([])
         try:
-            data = requests.get(
-                'http://127.0.0.1:5000/simpleserver/api/contacts',
-                headers={
-                    'X-Correlation-Id': '13aa24a8-2460-4222-9133-8000346f8456',
-                    'Content-Type': 'application/json',
-                    'Accept-Encoding': 'gzip',
-                    'Connection': 'keep-alive'
-                }
-            )
+            data = requests.get(BASE_URL + self.API_PATH)
+            data.raise_for_status()
             for i in data.json():
-                item = RequestDto(**i)
-                self.insert(item)
-        except Exception as err:
-            self.model.contacts.append(f"{err.request.url} NOT RESPONDING")
+                self.insert(
+                    RequestDto(**i)
+                )
+        except requests.HTTPError as http_err:
+            self.model.contacts.append(
+                f"Error: {http_err}"
+            )
         finally:
-            self.list_view.setModel(self.model)
+            self.view.setModel(self.model)
 
     def insert(self, item: RequestDto) -> None:
-        item = item.__dict__.values()
-        pretty = '     '.join([str(i).center(20) for i in list(item)])
+        item = dataclasses.asdict(item).values()
+        pretty = '   '.join(
+            [str(i).rjust(15, '-') for i in list(item)])
         self.model.contacts.append(pretty)
 
     def btn_send_clicked(self):
-        data = json.dumps({'telephone': self.line_edit.text()})
-        self.line_edit.setInputMask('')
-        self.line_edit.clear()
+
         dlg = CustomDialogue(self.window)
+        data = json.dumps({'telephone': self.textline.text()})
+
+        self.textline.setInputMask('')
+        self.textline.clear()
+
         try:
             response = requests.post(
-                'http://127.0.0.1:5000/simpleserver/api/contacts',
-                data=data,
-                headers={
-                    'Content-Type': 'application/json',
-                    'Accept-Encoding': 'gzip',
-                    'Connection': 'keep-alive'
-                })
-            dlg.message.setText(f"{json.loads(response.json()[0]).get('result')}")
-        except Exception as err:
-            dlg.message.setText(f"{err.request.url} NOT RESPONDING")
+                BASE_URL + self.API_PATH, data=data, headers=self.HEADERS
+            )
+            response.raise_for_status()
+            dlg.message.setText(
+                f"{json.loads(response.json()[0]).get('result')}"
+            )
+        except requests.ConnectionError as con_err:
+            winerror = str(con_err).split(':')[-1][:-3].strip()
+            dlg.message.setText(winerror)
         finally:
             dlg.exec()
 
     def text_edited(self, s):
-        if self.line_edit.isModified():
+        num_count = len([i for i in self.textline.displayText() if i.isnumeric()])
+        if num_count >= 11:
             self.btn_submit.setEnabled(True)
-        if self.line_edit.inputMask() == '':
-            self.line_edit.setInputMask('+7 999 999-99-99;_')
+        if self.textline.inputMask() == '':
+            self.textline.setInputMask('+7 (999) 999-99-99;_')
+        if len(s) <= 1:
+            self.textline.cursorForward(False, 1)
 
     def key_pressed(self, key):
-        if self.line_edit.cursorPosition() == 16 and not self.line_edit.isModified():
-            self.line_edit.setCursorPosition(6)
+        if self.textline.cursorPosition() == 16 and not self.textline.isModified():
+            self.textline.cursorBackward(False, 8)
